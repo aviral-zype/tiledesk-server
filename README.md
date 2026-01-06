@@ -1,3 +1,4 @@
+docker buildx build --platform linux/amd64 -t aviralgupta1/smartify-server:1.0.0 . --push
 [![npm version](https://badge.fury.io/js/%40tiledesk%2Ftiledesk-server.svg)](https://badge.fury.io/js/%40tiledesk%2Ftiledesk-server)
 
 [![CircleCI](https://circleci.com/gh/Tiledesk/tiledesk-server.svg?style=svg)](https://circleci.com/gh/Tiledesk/tiledesk-server)
