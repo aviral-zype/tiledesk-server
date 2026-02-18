@@ -47,12 +47,18 @@ if (!databaseUri) { //TODO??
   winston.warn('DATABASE_URI not specified, falling back to localhost.');
 }
 
-var connection = mongoose.connect(databaseUri, { "useNewUrlParser": true, "autoIndex": autoIndex }, function(err) {
+var connection = mongoose.connect(databaseUri, { 
+  autoIndex: autoIndex,
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  serverSelectionTimeoutMS: 10000,
+  heartbeatFrequencyMS: 10000
+}, function(err) {
   if (err) { 
     winston.error('Failed to connect to MongoDB on ' + databaseUri + " ", err);
     process.exit(1);
   }
-winston.info("Mongoose connection done on host: "+mongoose.connection.host + " on port: " + mongoose.connection.port + " with name: "+ mongoose.connection.name)// , mongoose.connection.db);
+  winston.info("Mongoose connection done on host: "+mongoose.connection.host + " on port: " + mongoose.connection.port + " with name: "+ mongoose.connection.name);
 });
 // winston.info("mongoose.connection",mongoose.connection);
 // module.exports = jobsManager;

@@ -67,19 +67,20 @@ if (process.env.MONGOOSE_AUTOINDEX) {
 
 winston.info("DB AutoIndex: " + autoIndex);
 
-var connection = mongoose.connect(databaseUri, { "useNewUrlParser": true, "autoIndex": autoIndex }, function(err) {
+var connection = mongoose.connect(databaseUri, { 
+  autoIndex: autoIndex,
+  // Modern driver handles these well, but we can set explicit timeouts to help with reconnection
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  serverSelectionTimeoutMS: 10000,
+  heartbeatFrequencyMS: 10000
+}, function(err) {
   if (err) { 
     winston.error('Failed to connect to MongoDB on ' + databaseUri + " ", err);
     process.exit(1);
   }
-  winston.info("Mongoose connection done on host: "+mongoose.connection.host + " on port: " + mongoose.connection.port + " with name: "+ mongoose.connection.name)// , mongoose.connection.db);
+  winston.info("Mongoose connection done on host: "+mongoose.connection.host + " on port: " + mongoose.connection.port + " with name: "+ mongoose.connection.name);
 });
-if (process.env.MONGOOSE_DEBUG==="true") {
-  mongoose.set('debug', true);
-}
-mongoose.set('useFindAndModify', false); // https://mongoosejs.com/docs/deprecations.html#-findandmodify-
-mongoose.set('useCreateIndex', true);
-mongoose.set('useUnifiedTopology', false); 
 
 // CONNECT REDIS - CHECK IT
 const { TdCache } = require('./utils/TdCache');
@@ -89,7 +90,15 @@ let tdCache = new TdCache({
     password: process.env.CACHE_REDIS_PASSWORD
 });
 
-tdCache.connect();
+if (process.env.CACHE_ENABLED === "true" || process.env.CACHE_ENABLED === true) {
+  tdCache.connect().then(() => {
+    winston.info("Redis Connected!");
+  }).catch((err) => {
+    winston.error("Redis connection error: ", err);
+  });
+} else {
+  winston.info("Redis cache disabled.");
+}
 
 // ROUTES DECLARATION
 var troubleshooting = require('./routes/troubleshooting');
@@ -197,18 +206,18 @@ faqBotHandler.listen();
 var pubModulesManager = require('./pubmodules/pubModulesManager');
 pubModulesManager.init({express:express, mongoose:mongoose, passport:passport, databaseUri:databaseUri, routes:{}, jobsManager:jobsManager});
   
-jobsManager.listen(); //listen after pubmodules to enabled queued *.queueEnabled events
+// jobsManager.listen(); //listen after pubmodules to enabled queued *.queueEnabled events
 
 let whatsappQueue = require('@tiledesk/tiledesk-whatsapp-jobworker');
 winston.info("whatsappQueue");
-jobsManager.listenWhatsappQueue(whatsappQueue);
+// jobsManager.listenWhatsappQueue(whatsappQueue);
 
 let multiWorkerQueue = require('@tiledesk/tiledesk-multi-worker');
 winston.info("multiWorkerQueue from App")
-jobsManager.listenMultiWorker(multiWorkerQueue);
+// jobsManager.listenMultiWorker(multiWorkerQueue);
 
 var channelManager = require('./channels/channelManager');
-channelManager.listen(); 
+// channelManager.listen(); 
 
 var IPFilter = require('./middleware/ipFilter');
 

@@ -24,7 +24,7 @@ winston.info("Request disableTicketIdSequence: "+ disableTicketIdSequence);
 // var autoIncrement = require('mongoose-auto-increment');
 
 //https://github.com/Automattic/mongoose/issues/5924
-mongoose.plugin(schema => { schema.options.usePushEach = true });
+// mongoose.plugin(schema => { schema.options.usePushEach = true });
 
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 

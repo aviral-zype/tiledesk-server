@@ -13,7 +13,7 @@
 
  var winston = require('../../config/winston');
 
- var cachegoose = require('cachegoose');
+ var cachegoose = require('recachegoose');
 
  var cacheUtil = require('../../utils/cacheUtil');
  var RoleConstants = require("../../models/roleConstants");
